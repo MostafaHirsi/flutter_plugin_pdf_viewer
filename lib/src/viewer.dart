@@ -65,7 +65,7 @@ class _PDFViewerState extends State<PDFViewer> {
       _oldPage = _pageNumber;
       _page = await widget.document.get(page: _pageNumber);
     }
-    if(this.mounted) {
+    if (this.mounted) {
       setState(() => _isLoading = false);
     }
   }
@@ -129,16 +129,16 @@ class _PDFViewerState extends State<PDFViewer> {
               : Container(),
         ],
       ),
-      floatingActionButton: widget.showPicker
-          ? FloatingActionButton(
-              elevation: 4.0,
-              tooltip: widget.tooltip.jump,
-              child: Icon(Icons.view_carousel),
-              onPressed: () {
-                _pickPage();
-              },
-            )
-          : null,
+      // floatingActionButton: widget.showPicker
+      //     ? FloatingActionButton(
+      //         elevation: 4.0,
+      //         tooltip: widget.tooltip.jump,
+      //         child: Icon(Icons.view_carousel),
+      //         onPressed: () {
+      //           _pickPage();
+      //         },
+      //       )
+      //     : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: (widget.showNavigation || widget.document.count > 1)
           ? BottomAppBar(
@@ -168,9 +168,10 @@ class _PDFViewerState extends State<PDFViewer> {
                       },
                     ),
                   ),
-                  widget.showPicker
-                      ? Expanded(child: Text(''))
-                      : SizedBox(width: 1),
+                  // widget.showPicker
+                  //     ? Expanded(child: Text(''))
+                  //     : SizedBox(width: 1),
+                  Expanded(child: Text('')),
                   Expanded(
                     child: IconButton(
                       icon: Icon(Icons.chevron_right),
