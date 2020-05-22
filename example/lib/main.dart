@@ -11,6 +11,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   PDFDocument document;
+  final PDFViewerController pdfViewerController = PDFViewerController();
 
   @override
   void initState() {
@@ -19,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   loadDocument() async {
-    document = await PDFDocument.fromAsset('assets/sample.pdf');
+    document = await PDFDocument.fromAsset('assets/sample 2.pdf');
 
     setState(() => _isLoading = false);
   }
@@ -27,10 +28,10 @@ class _MyAppState extends State<MyApp> {
   changePDF(value) async {
     setState(() => _isLoading = true);
     if (value == 1) {
-      document = await PDFDocument.fromAsset('assets/sample2.pdf');
+      document = await PDFDocument.fromAsset('assets/sample 2.pdf');
     } else if (value == 2) {
       document = await PDFDocument.fromURL(
-          "http://conorlastowka.com/book/CitationNeededBook-Sample.pdf");
+          "https://firebasestorage.googleapis.com/v0/b/yaktub-c0b33.appspot.com/o/5n4yyFfqhXTHXdWa3iPMsW2CA453%2FStatement%2021-FEB-20%20AC%2033656225.pdf?alt=media&token=766f4ef8-9f88-4e19-beca-5e2ebc227bfd");
     } else {
       document = await PDFDocument.fromAsset('assets/sample.pdf');
     }
@@ -70,9 +71,18 @@ class _MyAppState extends State<MyApp> {
           title: const Text('FlutterPluginPDFViewer'),
         ),
         body: Center(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : PDFViewer(document: document)),
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : PDFViewer(
+                  document: document,
+                  pdfViewerController: pdfViewerController,
+                ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            await pdfViewerController.changePage(2);
+          },
+        ),
       ),
     );
   }

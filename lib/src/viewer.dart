@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
+import 'package:flutter_plugin_pdf_viewer/src/viewer_interface.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'controller.dart';
 import 'tooltip.dart';
 
 enum IndicatorPosition { topLeft, topRight, bottomLeft, bottomRight }
@@ -15,6 +17,8 @@ class PDFViewer extends StatefulWidget {
   final bool showNavigation;
   final PDFViewerTooltip tooltip;
 
+  final PDFViewerController pdfViewerController;
+
   PDFViewer(
       {Key key,
       @required this.document,
@@ -24,13 +28,14 @@ class PDFViewer extends StatefulWidget {
       this.showPicker = true,
       this.showNavigation = true,
       this.tooltip = const PDFViewerTooltip(),
-      this.indicatorPosition = IndicatorPosition.topRight})
+      this.indicatorPosition = IndicatorPosition.topRight,
+      this.pdfViewerController})
       : super(key: key);
 
   _PDFViewerState createState() => _PDFViewerState();
 }
 
-class _PDFViewerState extends State<PDFViewer> {
+class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   bool _isLoading = true;
   int _pageNumber = 1;
   int _oldPage = 0;
@@ -45,6 +50,13 @@ class _PDFViewerState extends State<PDFViewer> {
     _isLoading = true;
     _pages.clear();
     _loadPage();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    widget.pdfViewerController?.pdfViewer = this;
   }
 
   @override
@@ -200,5 +212,13 @@ class _PDFViewerState extends State<PDFViewer> {
             )
           : Container(),
     );
+  }
+
+  @override
+  Future<void> changePage(int index) {
+    if (index != null) {
+      _pageNumber = index;
+      _loadPage();
+    }
   }
 }
