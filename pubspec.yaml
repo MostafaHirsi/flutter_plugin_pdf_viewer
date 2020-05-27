@@ -5,7 +5,7 @@ author: Tiago Ribeiro <tiagopribeiro.1992@gmail.com>
 homepage: https://github.com/CrossPT/flutter_plugin_pdf_viewer
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.5.2 <3.0.0"
 
 dependencies:
   flutter:

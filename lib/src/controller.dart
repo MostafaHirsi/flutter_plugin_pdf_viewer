@@ -5,7 +5,10 @@ class PDFViewerController {
 
   PDFViewerController();
 
+  int currentPage = 0;
+
   Future<void> changePage(int index) async {
     await pdfViewer.changePage(index);
+    currentPage = index;
   }
 }

@@ -76,6 +76,7 @@ class _MyAppState extends State<MyApp> {
               : PDFViewer(
                   document: document,
                   pdfViewerController: pdfViewerController,
+                  showNavigation: false,
                 ),
         ),
         floatingActionButton: FloatingActionButton(

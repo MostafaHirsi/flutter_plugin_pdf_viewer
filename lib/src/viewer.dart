@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
 import 'package:flutter_plugin_pdf_viewer/src/viewer_interface.dart';
@@ -132,85 +135,17 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          _isLoading ? Center(child: CircularProgressIndicator()) : _page,
-          (widget.showIndicator && !_isLoading)
-              ? _drawIndicator()
-              : Container(),
-        ],
-      ),
-      // floatingActionButton: widget.showPicker
-      //     ? FloatingActionButton(
-      //         elevation: 4.0,
-      //         tooltip: widget.tooltip.jump,
-      //         child: Icon(Icons.view_carousel),
-      //         onPressed: () {
-      //           _pickPage();
-      //         },
-      //       )
-      //     : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: (widget.showNavigation || widget.document.count > 1)
-          ? BottomAppBar(
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.first_page),
-                      tooltip: widget.tooltip.first,
-                      onPressed: () {
-                        _pageNumber = 1;
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.chevron_left),
-                      tooltip: widget.tooltip.previous,
-                      onPressed: () {
-                        _pageNumber--;
-                        if (1 > _pageNumber) {
-                          _pageNumber = 1;
-                        }
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  // widget.showPicker
-                  //     ? Expanded(child: Text(''))
-                  //     : SizedBox(width: 1),
-                  Expanded(child: Text('')),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.chevron_right),
-                      tooltip: widget.tooltip.next,
-                      onPressed: () {
-                        _pageNumber++;
-                        if (widget.document.count < _pageNumber) {
-                          _pageNumber = widget.document.count;
-                        }
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.last_page),
-                      tooltip: widget.tooltip.last,
-                      onPressed: () {
-                        _pageNumber = widget.document.count;
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Container(),
+    return Stack(
+      children: <Widget>[
+        _isLoading
+            ? Center(
+                child: Platform.isIOS
+                    ? CupertinoActivityIndicator()
+                    : CircularProgressIndicator(),
+              )
+            : _page,
+        (widget.showIndicator && !_isLoading) ? _drawIndicator() : Container(),
+      ],
     );
   }
 
