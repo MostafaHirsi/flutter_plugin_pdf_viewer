@@ -1,0 +1,4 @@
+enum PDFMode {
+  View,
+  Annotate
+}

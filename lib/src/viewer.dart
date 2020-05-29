@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
+import 'package:flutter_plugin_pdf_viewer/src/mode_enum.dart';
 import 'package:flutter_plugin_pdf_viewer/src/viewer_interface.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'controller.dart';
@@ -19,7 +20,7 @@ class PDFViewer extends StatefulWidget {
   final bool showPicker;
   final bool showNavigation;
   final PDFViewerTooltip tooltip;
-
+  final List<Offset> data;
   final PDFViewerController pdfViewerController;
 
   PDFViewer(
@@ -32,7 +33,8 @@ class PDFViewer extends StatefulWidget {
       this.showNavigation = true,
       this.tooltip = const PDFViewerTooltip(),
       this.indicatorPosition = IndicatorPosition.topRight,
-      this.pdfViewerController})
+      this.pdfViewerController,
+      this.data})
       : super(key: key);
 
   _PDFViewerState createState() => _PDFViewerState();
@@ -43,6 +45,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   int _pageNumber = 1;
   int _oldPage = 0;
   PDFPage _page;
+  PDFMode mode = PDFMode.Annotate;
   List<PDFPage> _pages = List();
 
   @override
@@ -72,13 +75,15 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
     _loadPage();
   }
 
-  _loadPage() async {
+  _loadPage({PDFMode viewMode = PDFMode.View}) async {
     setState(() => _isLoading = true);
     if (_oldPage == 0) {
-      _page = await widget.document.get(page: _pageNumber);
+      _page =
+          await widget.document.get(viewMode, widget.data, page: _pageNumber);
     } else if (_oldPage != _pageNumber) {
       _oldPage = _pageNumber;
-      _page = await widget.document.get(page: _pageNumber);
+      _page =
+          await widget.document.get(viewMode, widget.data, page: _pageNumber);
     }
     if (this.mounted) {
       setState(() => _isLoading = false);
@@ -155,5 +160,11 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
       _pageNumber = index;
       _loadPage();
     }
+  }
+
+  @override
+  Future<void> toggleMode() {
+    mode = mode == PDFMode.View ? PDFMode.Annotate : PDFMode.View;
+    _loadPage(viewMode: mode);
   }
 }

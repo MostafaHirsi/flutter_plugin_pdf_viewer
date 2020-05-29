@@ -5,3 +5,4 @@ export 'src/page.dart' show PDFPage;
 export 'src/viewer.dart' show PDFViewer;
 export 'src/tooltip.dart' show PDFViewerTooltip;
 export 'src/controller.dart' show PDFViewerController;
+export 'src/mode_enum.dart' show PDFMode;

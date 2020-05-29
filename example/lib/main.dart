@@ -12,7 +12,7 @@ class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   PDFDocument document;
   final PDFViewerController pdfViewerController = PDFViewerController();
-
+  List<Offset> data = <Offset>[];
   @override
   void initState() {
     super.initState();
@@ -20,7 +20,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   loadDocument() async {
-    document = await PDFDocument.fromAsset('assets/sample 2.pdf');
+    document = await PDFDocument.fromAsset(
+        'assets/sample 2.pdf', data, pdfViewerController);
 
     setState(() => _isLoading = false);
   }
@@ -28,12 +29,16 @@ class _MyAppState extends State<MyApp> {
   changePDF(value) async {
     setState(() => _isLoading = true);
     if (value == 1) {
-      document = await PDFDocument.fromAsset('assets/sample 2.pdf');
+      document = await PDFDocument.fromAsset(
+          'assets/sample 2.pdf', data, pdfViewerController);
     } else if (value == 2) {
       document = await PDFDocument.fromURL(
-          "https://firebasestorage.googleapis.com/v0/b/yaktub-c0b33.appspot.com/o/5n4yyFfqhXTHXdWa3iPMsW2CA453%2FStatement%2021-FEB-20%20AC%2033656225.pdf?alt=media&token=766f4ef8-9f88-4e19-beca-5e2ebc227bfd");
+          "https://firebasestorage.googleapis.com/v0/b/yaktub-c0b33.appspot.com/o/5n4yyFfqhXTHXdWa3iPMsW2CA453%2FStatement%2021-FEB-20%20AC%2033656225.pdf?alt=media&token=766f4ef8-9f88-4e19-beca-5e2ebc227bfd",
+          data,
+          pdfViewerController);
     } else {
-      document = await PDFDocument.fromAsset('assets/sample.pdf');
+      document = await PDFDocument.fromAsset(
+          'assets/sample.pdf', data, pdfViewerController);
     }
     setState(() => _isLoading = false);
   }
@@ -81,7 +86,8 @@ class _MyAppState extends State<MyApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            await pdfViewerController.changePage(2);
+            // await pdfViewerController.changePage(2);
+            pdfViewerController.setMode();
           },
         ),
       ),

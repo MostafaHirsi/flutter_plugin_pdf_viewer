@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_plugin_pdf_viewer/src/mode_enum.dart';
 import 'package:flutter_plugin_pdf_viewer/src/page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../flutter_plugin_pdf_viewer.dart';
 
 class PDFDocument {
   static const MethodChannel _channel =
@@ -13,13 +17,18 @@ class PDFDocument {
 
   String _filePath;
   int count;
+  List<Offset> drawingData;
+  PDFViewerController controller;
 
   /// Load a PDF File from a given File
   ///
   ///
-  static Future<PDFDocument> fromFile(File f) async {
+  static Future<PDFDocument> fromFile(
+      File f, List<Offset> data, PDFViewerController controller) async {
     PDFDocument document = PDFDocument();
     document._filePath = f.path;
+    document.drawingData = data;
+    document.controller = controller;
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
@@ -33,11 +42,14 @@ class PDFDocument {
   /// Load a PDF File from a given URL.
   /// File is saved in cache
   ///
-  static Future<PDFDocument> fromURL(String url) async {
+  static Future<PDFDocument> fromURL(
+      String url, List<Offset> data, PDFViewerController controller) async {
     // Download into cache
     File f = await DefaultCacheManager().getSingleFile(url);
     PDFDocument document = PDFDocument();
     document._filePath = f.path;
+    document.drawingData = data;
+    document.controller = controller;
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
@@ -51,7 +63,8 @@ class PDFDocument {
   /// Load a PDF File from assets folder
   ///
   ///
-  static Future<PDFDocument> fromAsset(String asset) async {
+  static Future<PDFDocument> fromAsset(
+      String asset, List<Offset> data, PDFViewerController controller) async {
     // To open from assets, you can copy them to the app storage folder, and the access them "locally"
     File file;
     try {
@@ -65,6 +78,8 @@ class PDFDocument {
     }
     PDFDocument document = PDFDocument();
     document._filePath = file.path;
+    document.drawingData = data;
+    document.controller = controller;
     try {
       var pageCount = await _channel
           .invokeMethod('getNumberOfPages', {'filePath': file.path});
@@ -78,20 +93,24 @@ class PDFDocument {
   /// Load specific page
   ///
   /// [page] defaults to `1` and must be equal or above it
-  Future<PDFPage> get({int page = 1}) async {
+  Future<PDFPage> get(PDFMode mode, List<Offset> offsetData,
+      {int page = 1}) async {
     assert(page > 0);
     var data = await _channel
         .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
-    return new PDFPage(data, page);
+    return new PDFPage(data, page, mode, drawingData, controller);
   }
 
   // Stream all pages
-  Observable<PDFPage> getAll() {
+  Observable<PDFPage> getAll(
+    PDFMode mode,
+    List<Offset> offsetData,
+  ) {
     return Future.forEach<PDFPage>(List(count), (i) async {
       print(i);
       final data = await _channel
           .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
-      return new PDFPage(data, 1);
+      return new PDFPage(data, 1, mode, drawingData, controller);
     }).asStream();
   }
 }
