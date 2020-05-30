@@ -13,10 +13,16 @@ class _MyAppState extends State<MyApp> {
   PDFDocument document;
   final PDFViewerController pdfViewerController = PDFViewerController();
   List<Offset> data = <Offset>[];
+
   @override
   void initState() {
     super.initState();
     loadDocument();
+    pdfViewerController.onChanged = onChanged;
+  }
+
+  onChanged(List<Offset> offsets) {
+    print("OFFSET CHANGED");
   }
 
   loadDocument() async {
@@ -81,7 +87,8 @@ class _MyAppState extends State<MyApp> {
               : PDFViewer(
                   document: document,
                   pdfViewerController: pdfViewerController,
-                  showNavigation: false,
+                  showNavigation: true,
+                  showIndicator: false,
                 ),
         ),
         floatingActionButton: FloatingActionButton(

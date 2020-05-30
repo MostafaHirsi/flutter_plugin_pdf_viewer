@@ -20,7 +20,6 @@ class PDFViewer extends StatefulWidget {
   final bool showPicker;
   final bool showNavigation;
   final PDFViewerTooltip tooltip;
-  final List<Offset> data;
   final PDFViewerController pdfViewerController;
 
   PDFViewer(
@@ -33,8 +32,7 @@ class PDFViewer extends StatefulWidget {
       this.showNavigation = true,
       this.tooltip = const PDFViewerTooltip(),
       this.indicatorPosition = IndicatorPosition.topRight,
-      this.pdfViewerController,
-      this.data})
+      this.pdfViewerController})
       : super(key: key);
 
   _PDFViewerState createState() => _PDFViewerState();
@@ -45,7 +43,6 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   int _pageNumber = 1;
   int _oldPage = 0;
   PDFPage _page;
-  PDFMode mode = PDFMode.Annotate;
   List<PDFPage> _pages = List();
 
   @override
@@ -79,11 +76,11 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
     setState(() => _isLoading = true);
     if (_oldPage == 0) {
       _page =
-          await widget.document.get(viewMode, widget.data, page: _pageNumber);
+          await widget.document.get(viewMode, page: _pageNumber);
     } else if (_oldPage != _pageNumber) {
       _oldPage = _pageNumber;
       _page =
-          await widget.document.get(viewMode, widget.data, page: _pageNumber);
+          await widget.document.get(viewMode, page: _pageNumber);
     }
     if (this.mounted) {
       setState(() => _isLoading = false);
@@ -140,16 +137,85 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Flexible(
+          flex: 90,
+          child: Stack(
+            children: <Widget>[
+              _isLoading
+                  ? Center(
+                      child: Platform.isIOS
+                          ? CupertinoActivityIndicator()
+                          : CircularProgressIndicator(),
+                    )
+                  : _page,
+              (widget.showIndicator && !_isLoading)
+                  ? _drawIndicator()
+                  : Container(),
+            ],
+          ),
+        ),
+        Flexible(
+          flex: 10,
+          child: buildBottomBar(),
+        )
+      ],
+    );
+  }
+
+  Widget buildBottomBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        _isLoading
-            ? Center(
-                child: Platform.isIOS
-                    ? CupertinoActivityIndicator()
-                    : CircularProgressIndicator(),
-              )
-            : _page,
-        (widget.showIndicator && !_isLoading) ? _drawIndicator() : Container(),
+        Expanded(
+          child: IconButton(
+            icon: Icon(Icons.first_page),
+            tooltip: widget.tooltip.first,
+            onPressed: () {
+              _pageNumber = 1;
+              _loadPage();
+            },
+          ),
+        ),
+        Expanded(
+          child: IconButton(
+            icon: Icon(Icons.chevron_left),
+            tooltip: widget.tooltip.previous,
+            onPressed: () {
+              _pageNumber--;
+              if (1 > _pageNumber) {
+                _pageNumber = 1;
+              }
+              _loadPage();
+            },
+          ),
+        ),
+        widget.showPicker ? Expanded(child: Text('')) : SizedBox(width: 1),
+        Expanded(
+          child: IconButton(
+            icon: Icon(Icons.chevron_right),
+            tooltip: widget.tooltip.next,
+            onPressed: () {
+              _pageNumber++;
+              if (widget.document.count < _pageNumber) {
+                _pageNumber = widget.document.count;
+              }
+              _loadPage();
+            },
+          ),
+        ),
+        Expanded(
+          child: IconButton(
+            icon: Icon(Icons.last_page),
+            tooltip: widget.tooltip.last,
+            onPressed: () {
+              _pageNumber = widget.document.count;
+              _loadPage();
+            },
+          ),
+        ),
       ],
     );
   }
@@ -164,7 +230,10 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   @override
   Future<void> toggleMode() {
-    mode = mode == PDFMode.View ? PDFMode.Annotate : PDFMode.View;
-    _loadPage(viewMode: mode);
+    widget.pdfViewerController.pdfMode =
+        widget.pdfViewerController.pdfMode == PDFMode.View
+            ? PDFMode.Annotate
+            : PDFMode.View;
+    _loadPage(viewMode: widget.pdfViewerController.pdfMode);
   }
 }

@@ -17,26 +17,33 @@ class PDFDocument {
 
   String _filePath;
   int count;
-  List<Offset> drawingData;
   PDFViewerController controller;
 
   /// Load a PDF File from a given File
   ///
   ///
   static Future<PDFDocument> fromFile(
-      File f, List<Offset> data, PDFViewerController controller) async {
+      File f, PDFViewerController controller) async {
     PDFDocument document = PDFDocument();
     document._filePath = f.path;
-    document.drawingData = data;
     document.controller = controller;
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
       document.count = document.count = int.parse(pageCount);
+      populateOffsets(document, controller);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
     return document;
+  }
+
+  static void populateOffsets(
+      PDFDocument document, PDFViewerController controller) {
+    for (var i = 0; i < document.count; i++) {
+      List<Offset> pageOffset = [];
+      controller.pageOffset.add(pageOffset);
+    }
   }
 
   /// Load a PDF File from a given URL.
@@ -48,12 +55,12 @@ class PDFDocument {
     File f = await DefaultCacheManager().getSingleFile(url);
     PDFDocument document = PDFDocument();
     document._filePath = f.path;
-    document.drawingData = data;
     document.controller = controller;
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
       document.count = document.count = int.parse(pageCount);
+      populateOffsets(document, controller);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
@@ -78,12 +85,12 @@ class PDFDocument {
     }
     PDFDocument document = PDFDocument();
     document._filePath = file.path;
-    document.drawingData = data;
     document.controller = controller;
     try {
       var pageCount = await _channel
           .invokeMethod('getNumberOfPages', {'filePath': file.path});
       document.count = document.count = int.parse(pageCount);
+      populateOffsets(document, controller);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
@@ -93,23 +100,23 @@ class PDFDocument {
   /// Load specific page
   ///
   /// [page] defaults to `1` and must be equal or above it
-  Future<PDFPage> get(PDFMode mode, List<Offset> offsetData,
-      {int page = 1}) async {
+  Future<PDFPage> get(PDFMode mode, {int page = 1}) async {
     assert(page > 0);
     var data = await _channel
         .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
+    List<Offset> drawingData = controller.pageOffset[page];
     return new PDFPage(data, page, mode, drawingData, controller);
   }
 
   // Stream all pages
   Observable<PDFPage> getAll(
     PDFMode mode,
-    List<Offset> offsetData,
   ) {
     return Future.forEach<PDFPage>(List(count), (i) async {
       print(i);
       final data = await _channel
           .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
+      List<Offset> drawingData = controller.pageOffset[i.num];
       return new PDFPage(data, 1, mode, drawingData, controller);
     }).asStream();
   }

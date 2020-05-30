@@ -48,6 +48,7 @@ class _PDFPageState extends State<PDFPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Offset> offsets = widget.controller.pageOffset[widget.num];
     if (widget.mode == PDFMode.Annotate) {
       return Transform.scale(
         alignment: Alignment.center,
@@ -56,7 +57,10 @@ class _PDFPageState extends State<PDFPage> {
           children: [
             Image(image: provider),
             Annotater(
-              data: widget.data,
+              data: offsets,
+              onChanged: (offsets) {
+                widget.controller.onChanged(offsets);
+              },
             ),
           ],
         ),
@@ -76,7 +80,8 @@ class _PDFPageState extends State<PDFPage> {
         children: [
           Image(image: provider),
           Annotater(
-            data: widget.data,
+            data: offsets,
+            onChanged: (offsets) {},
           ),
         ],
       ),

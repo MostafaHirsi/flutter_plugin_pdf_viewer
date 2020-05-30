@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 
 class Annotater extends StatefulWidget {
   final List<Offset> data;
+  final Function(List<Offset>) onChanged;
+  final bool showOverlay;
 
-  const Annotater({Key key, this.data}) : super(key: key);
+  const Annotater(
+      {Key key, this.data, this.onChanged, this.showOverlay = false})
+      : super(key: key);
   @override
   _AnnotaterState createState() => _AnnotaterState();
 }
@@ -25,7 +29,9 @@ class _AnnotaterState extends State<Annotater> {
     return _buildGestureDetector(
       context,
       Container(
-        color: Colors.white.withOpacity(0.5),
+        color: widget.showOverlay
+            ? Colors.transparent
+            : Colors.white.withOpacity(0.5),
         child: _buildPositionedFrame(
             context: context,
             frameKey: _frame0Key,
@@ -103,7 +109,7 @@ class _AnnotaterState extends State<Annotater> {
 
   Widget _buildCustomPaint(BuildContext context, List<Offset> points) =>
       CustomPaint(
-        painter: FlipBookPainter(points),
+        painter: FlipBookPainter(points, widget.onChanged),
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -117,8 +123,8 @@ class _AnnotaterState extends State<Annotater> {
 
 class FlipBookPainter extends CustomPainter {
   final List<Offset> offsets;
-
-  FlipBookPainter(this.offsets) : super();
+  final Function(List<Offset>) onChanged;
+  FlipBookPainter(this.offsets, this.onChanged) : super();
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -126,10 +132,15 @@ class FlipBookPainter extends CustomPainter {
       ..color = Colors.deepPurple
       ..isAntiAlias = true
       ..strokeWidth = 2.0;
-
+    int diffCounter = 0;
     for (var i = 0; i < offsets.length; i++) {
+      diffCounter++;
       if (shouldDrawLine(i)) {
         canvas.drawLine(offsets[i], offsets[i + 1], paint);
+        if (diffCounter > 20) {
+          onChanged(offsets);
+          diffCounter = 0;
+        }
       } else if (shouldDrawPoint(i)) {
         canvas.drawPoints(PointMode.points, [offsets[i]], paint);
       }
