@@ -137,13 +137,20 @@ class FlipBookPainter extends CustomPainter {
       diffCounter++;
       if (shouldDrawLine(i)) {
         canvas.drawLine(offsets[i], offsets[i + 1], paint);
-        if (diffCounter > 20) {
-          onChanged(offsets);
-          diffCounter = 0;
-        }
+        submitChange(diffCounter);
       } else if (shouldDrawPoint(i)) {
         canvas.drawPoints(PointMode.points, [offsets[i]], paint);
+        submitChange(diffCounter);
       }
+    }
+  }
+
+  void submitChange(int diffCounter) {
+    if (diffCounter > 20) {
+      if (onChanged != null) {
+        onChanged(offsets);
+      }
+      diffCounter = 0;
     }
   }
 

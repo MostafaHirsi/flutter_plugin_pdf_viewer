@@ -50,40 +50,45 @@ class _PDFPageState extends State<PDFPage> {
   Widget build(BuildContext context) {
     List<Offset> offsets = widget.controller.pageOffset[widget.num];
     if (widget.mode == PDFMode.Annotate) {
-      return Transform.scale(
-        alignment: Alignment.center,
-        scale: widget.controller.zoomValue,
+      return Container(
+        color: Colors.grey,
+        child: Transform.scale(
+          alignment: Alignment.center,
+          scale: widget.controller.zoomValue,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image(image: provider),
+              Annotater(
+                data: offsets,
+                onChanged: widget.controller.onChanged(offsets),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Container(
+      color: Colors.grey,
+      child: ZoomableWidget(
+        zoomSteps: 3,
+        minScale: 1.0,
+        panLimit: 0.8,
+        maxScale: 3.0,
+        singleFingerPan: true,
+        onZoomChanged: (value) {
+          widget.controller.zoomValue = value;
+        },
         child: Stack(
+          alignment: Alignment.center,
           children: [
             Image(image: provider),
             Annotater(
               data: offsets,
-              onChanged: (offsets) {
-                widget.controller.onChanged(offsets);
-              },
+              onChanged: null,
             ),
           ],
         ),
-      );
-    }
-    return ZoomableWidget(
-      zoomSteps: 3,
-      minScale: 1.0,
-      panLimit: 0.8,
-      maxScale: 3.0,
-      singleFingerPan: false,
-      onZoomChanged: (value) {
-        widget.controller.zoomValue = value;
-      },
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          Image(image: provider),
-          Annotater(
-            data: offsets,
-            onChanged: (offsets) {},
-          ),
-        ],
       ),
     );
   }
