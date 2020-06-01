@@ -24,14 +24,14 @@ class _AnnotaterState extends State<Annotater> {
   // For accessing the RenderBox of each frame
   final _frame0Key = GlobalKey();
 
+  List<int> pointers = [];
+
   @override
   Widget build(BuildContext context) {
     return _buildGestureDetector(
       context,
       Container(
-        color: widget.showOverlay
-            ? Colors.transparent
-            : Colors.white.withOpacity(0.5),
+        color: Colors.transparent,
         child: _buildPositionedFrame(
             context: context,
             frameKey: _frame0Key,
@@ -45,7 +45,8 @@ class _AnnotaterState extends State<Annotater> {
   Widget _buildGestureDetector(BuildContext context, Widget child) {
     return Listener(
       onPointerDown: (details) {
-        if (currentPointer == null) {
+        pointers.add(details.pointer);
+        if (pointers.length == 1) {
           currentPointer = details.pointer;
           setState(() {
             _addPointsForCurrentFrame(details.position);
@@ -53,13 +54,14 @@ class _AnnotaterState extends State<Annotater> {
         }
       },
       onPointerMove: (details) {
-        if (details.pointer == currentPointer) {
+        if (pointers.length == 1) {
           setState(() {
             _addPointsForCurrentFrame(details.position);
           });
         }
       },
       onPointerUp: (details) {
+        pointers.remove(details.pointer);
         if (details.pointer == currentPointer) {
           setState(() {
             _getPointsForFrame(_currentFrame).add(null);

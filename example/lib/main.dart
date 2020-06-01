@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
               : PDFViewer(
                   document: document,
                   pdfViewerController: pdfViewerController,
-                  showNavigation: true,
+                  showNavigation: false,
                   showIndicator: false,
                 ),
         ),

@@ -85,6 +85,16 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
     }
   }
 
+  _toggleView({PDFMode viewMode = PDFMode.View}) async {
+    if (_oldPage == 0) {
+      _page = await widget.document.get(viewMode, page: _pageNumber);
+    } else if (_oldPage != _pageNumber) {
+      _oldPage = _pageNumber;
+      _page = await widget.document.get(viewMode, page: _pageNumber);
+    }
+    setState(() {});
+  }
+
   Widget _drawIndicator() {
     Widget child = GestureDetector(
         onTap: _pickPage,
@@ -139,7 +149,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
       mainAxisSize: MainAxisSize.max,
       children: [
         Flexible(
-          flex: 90,
+          flex: widget.showNavigation ? 90 : 100,
           child: Stack(
             children: <Widget>[
               _isLoading
@@ -155,10 +165,11 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
             ],
           ),
         ),
-        Flexible(
-          flex: 10,
-          child: buildBottomBar(),
-        )
+        if (widget.showNavigation)
+          Flexible(
+            flex: 10,
+            child: buildBottomBar(),
+          )
       ],
     );
   }
@@ -236,6 +247,6 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
         widget.pdfViewerController.pdfMode == PDFMode.View
             ? PDFMode.Annotate
             : PDFMode.View;
-    _loadPage(viewMode: widget.pdfViewerController.pdfMode);
+    _toggleView(viewMode: widget.pdfViewerController.pdfMode);
   }
 }
