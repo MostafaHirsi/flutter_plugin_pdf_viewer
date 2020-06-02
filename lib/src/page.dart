@@ -34,13 +34,6 @@ class _PDFPageState extends State<PDFPage> {
     // TODO: implement initState
     super.initState();
     photoViewController.addIgnorableListener(() {
-      double scale = getScale(photoViewController.scale);
-      Offset offset = getPosition(photoViewController.position, (scale));
-      print("PositionX: " + offset.dx.toString());
-      print("PositionY: " + offset.dy.toString());
-
-      print("Zoom Cleaned: " + scale.toString());
-      print("Zoom : " + (photoViewController.scale).toString());
       setState(() {});
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => postBuild(context));
