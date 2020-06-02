@@ -12,7 +12,10 @@ class PDFViewerController {
   PDFMode pdfMode = PDFMode.View;
   List<List<Offset>> pageOffset = [];
   Function(List<Offset>) onChanged;
+  Function(PDFMode) onModeChanged;
   Offset zoomOffset;
+  double height;
+  double width;
 
   Future<void> changePage(int index) async {
     await pdfViewer.changePage(index);
@@ -21,5 +24,6 @@ class PDFViewerController {
 
   void setMode() {
     pdfViewer.toggleMode();
+    onModeChanged(pdfMode);
   }
 }

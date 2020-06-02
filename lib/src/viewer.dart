@@ -40,7 +40,6 @@ class PDFViewer extends StatefulWidget {
 
 class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   bool _isLoading = true;
-  int _pageNumber = 1;
   int _oldPage = 0;
   PDFPage _page;
   List<PDFPage> _pages = List();
@@ -49,7 +48,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _oldPage = 0;
-    _pageNumber = 1;
+    widget.pdfViewerController.currentPage = 1;
     _isLoading = true;
     _pages.clear();
     _loadPage();
@@ -66,7 +65,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   void didUpdateWidget(PDFViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
     _oldPage = 0;
-    _pageNumber = 1;
+    widget.pdfViewerController.currentPage = 1;
     _isLoading = true;
     _pages.clear();
     _loadPage();
@@ -75,10 +74,10 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   _loadPage({PDFMode viewMode = PDFMode.View}) async {
     setState(() => _isLoading = true);
     if (_oldPage == 0) {
-      _page = await widget.document.get(viewMode, page: _pageNumber);
-    } else if (_oldPage != _pageNumber) {
-      _oldPage = _pageNumber;
-      _page = await widget.document.get(viewMode, page: _pageNumber);
+      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+    } else if (_oldPage != widget.pdfViewerController.currentPage) {
+      _oldPage = widget.pdfViewerController.currentPage;
+      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
     }
     if (this.mounted) {
       setState(() => _isLoading = false);
@@ -87,10 +86,10 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   _toggleView({PDFMode viewMode = PDFMode.View}) async {
     if (_oldPage == 0) {
-      _page = await widget.document.get(viewMode, page: _pageNumber);
-    } else if (_oldPage != _pageNumber) {
-      _oldPage = _pageNumber;
-      _page = await widget.document.get(viewMode, page: _pageNumber);
+      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+    } else if (_oldPage != widget.pdfViewerController.currentPage) {
+      _oldPage = widget.pdfViewerController.currentPage;
+      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
     }
     setState(() {});
   }
@@ -104,7 +103,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4.0),
                 color: widget.indicatorBackground),
-            child: Text("$_pageNumber/${widget.document.count}",
+            child: Text("$widget.pdfViewerController.currentPage/${widget.document.count}",
                 style: TextStyle(
                     color: widget.indicatorText,
                     fontSize: 16.0,
@@ -133,11 +132,11 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
             minValue: 1,
             cancelWidget: Container(),
             maxValue: widget.document.count,
-            initialIntegerValue: _pageNumber,
+            initialIntegerValue: widget.pdfViewerController.currentPage,
           );
         }).then((int value) {
       if (value != null) {
-        _pageNumber = value;
+        widget.pdfViewerController.currentPage = value;
         _loadPage();
       }
     });
@@ -186,7 +185,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               icon: Icon(Icons.first_page),
               tooltip: widget.tooltip.first,
               onPressed: () {
-                _pageNumber = 1;
+                widget.pdfViewerController.currentPage = 1;
                 _loadPage();
               },
             ),
@@ -196,9 +195,9 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               icon: Icon(Icons.chevron_left),
               tooltip: widget.tooltip.previous,
               onPressed: () {
-                _pageNumber--;
-                if (1 > _pageNumber) {
-                  _pageNumber = 1;
+                widget.pdfViewerController.currentPage--;
+                if (1 > widget.pdfViewerController.currentPage) {
+                  widget.pdfViewerController.currentPage = 1;
                 }
                 _loadPage();
               },
@@ -210,9 +209,9 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               icon: Icon(Icons.chevron_right),
               tooltip: widget.tooltip.next,
               onPressed: () {
-                _pageNumber++;
-                if (widget.document.count < _pageNumber) {
-                  _pageNumber = widget.document.count;
+                widget.pdfViewerController.currentPage++;
+                if (widget.document.count < widget.pdfViewerController.currentPage) {
+                  widget.pdfViewerController.currentPage = widget.document.count;
                 }
                 _loadPage();
               },
@@ -223,7 +222,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               icon: Icon(Icons.last_page),
               tooltip: widget.tooltip.last,
               onPressed: () {
-                _pageNumber = widget.document.count;
+                widget.pdfViewerController.currentPage = widget.document.count;
                 _loadPage();
               },
             ),
@@ -236,7 +235,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   @override
   Future<void> changePage(int index) {
     if (index != null) {
-      _pageNumber = index;
+      widget.pdfViewerController.currentPage = index;
       _loadPage();
     }
   }

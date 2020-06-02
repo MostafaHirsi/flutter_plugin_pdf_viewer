@@ -43,6 +43,13 @@ class _PDFPageState extends State<PDFPage> {
       print("Zoom : " + (photoViewController.scale).toString());
       setState(() {});
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => postBuild(context));
+
+  }
+
+  postBuild(BuildContext context) {
+    widget.controller.height = context.size.height;
+    widget.controller.width = context.size.width;
   }
 
   double getScale(double inputScale) {

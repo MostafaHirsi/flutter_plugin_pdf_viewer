@@ -31,7 +31,7 @@ class _AnnotaterState extends State<Annotater> {
     return _buildGestureDetector(
       context,
       Container(
-        color: Colors.transparent,
+        color: Colors.red.withOpacity(0.5),
         child: _buildPositionedFrame(
             context: context,
             frameKey: _frame0Key,
