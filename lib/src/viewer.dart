@@ -114,7 +114,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
                 borderRadius: BorderRadius.circular(4.0),
                 color: widget.indicatorBackground),
             child: Text(
-                "$widget.pdfViewerController.currentPage/${widget.document.count}",
+                "${widget.pdfViewerController.currentPage}/${widget.document.count}",
                 style: TextStyle(
                     color: widget.indicatorText,
                     fontSize: 16.0,

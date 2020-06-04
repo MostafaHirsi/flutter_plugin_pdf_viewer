@@ -1,16 +1,14 @@
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_advanced_networkimage/zoomable.dart';
 import 'package:flutter_plugin_pdf_viewer/src/mode_enum.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../flutter_plugin_pdf_viewer.dart';
 import 'annotater.dart';
+import 'outer_gesture.dart';
 
 class PDFPage extends StatefulWidget {
   final PDFMode mode;
@@ -29,40 +27,14 @@ class _PDFPageState extends State<PDFPage> {
   int height = 0;
   int width = 0;
   PhotoViewController photoViewController = new PhotoViewController();
+  File file;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    photoViewController.addIgnorableListener(() {
-      setState(() {});
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => postBuild(context));
+    file = File(widget.imgPath);
   }
-
-  postBuild(BuildContext context) {
-    widget.controller.height = context.size.height;
-    widget.controller.width = context.size.width;
-  }
-
-  double getScale(double inputScale) {
-    double roundedDecimalPoint = dp(inputScale, 2);
-    double cleanScale = roundedDecimalPoint > 0.2 ? roundedDecimalPoint : 0;
-    return (1 / (1 - cleanScale));
-  }
-
-  Offset getPosition(Offset position, double scale) {
-    // Offset offset = Offset((-position.dx / scale), (-position.dy / scale));
-    Offset offset =
-        Offset.fromDirection(position.direction, -position.distance);
-    return offset;
-  }
-
-  double dp(double val, int places) {
-    double mod = pow(10.0, places);
-    return ((val * mod).round().toDouble() / mod);
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -106,10 +78,7 @@ class _PDFPageState extends State<PDFPage> {
   Widget build(BuildContext context) {
     List<Offset> offsets = widget.controller.pageOffset[widget.num - 1];
     if (widget.mode == PDFMode.Annotate) {
-      return Transform.scale(
-        scale: photoViewController.scale,
-        origin: getPosition(
-            photoViewController.position, photoViewController.scale),
+      return OuterGesture(
         child: Container(
           color: Colors.black,
           child: Stack(
@@ -117,7 +86,7 @@ class _PDFPageState extends State<PDFPage> {
             children: [
               Center(
                 child: Image.file(
-                  File(widget.imgPath),
+                  file,
                 ),
               ),
               if (width != null && width > 1)
@@ -126,7 +95,8 @@ class _PDFPageState extends State<PDFPage> {
                   child: Annotater(
                     data: offsets,
                     onChanged: widget.controller.onChanged(offsets),
-                    showOverlay: true,
+                    showOverlay: false,
+                    active: true,
                   ),
                 ),
             ],
@@ -142,20 +112,20 @@ class _PDFPageState extends State<PDFPage> {
           controller: photoViewController,
           minScale: 1.0,
           maxScale: 2.0,
+          gestureDetectorBehavior: HitTestBehavior.deferToChild,
           child: Stack(
             alignment: Alignment.center,
             children: [
               Image.file(
-                File(widget.imgPath),
+                file,
               ),
               if (width != null && width > 1)
-                IgnorePointer(
-                  child: AspectRatio(
-                    aspectRatio: width / height,
-                    child: Annotater(
-                      data: offsets,
-                      onChanged: null,
-                    ),
+                AspectRatio(
+                  aspectRatio: width / height,
+                  child: Annotater(
+                    data: offsets,
+                    onChanged: null,
+                    showOverlay: false,
                   ),
                 ),
             ],
@@ -165,9 +135,3 @@ class _PDFPageState extends State<PDFPage> {
     );
   }
 }
-
-// scale: 1.88,
-// origin: Offset(
-//   511/2.5,
-//   663/2.5,
-// ),

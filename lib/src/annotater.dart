@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -7,9 +8,14 @@ class Annotater extends StatefulWidget {
   final List<Offset> data;
   final Function(List<Offset>) onChanged;
   final bool showOverlay;
+  final bool active;
 
   const Annotater(
-      {Key key, this.data, this.onChanged, this.showOverlay = false})
+      {Key key,
+      this.data,
+      this.onChanged,
+      this.showOverlay = false,
+      this.active = false})
       : super(key: key);
   @override
   _AnnotaterState createState() => _AnnotaterState();
@@ -18,14 +24,14 @@ class Annotater extends StatefulWidget {
 class _AnnotaterState extends State<Annotater> {
   bool _isVisible0 = true;
   final _frameColor = Colors.white;
-
+  bool touchBegan = false;
   int _currentFrame = 0;
   int currentPointer;
   // For accessing the RenderBox of each frame
   final _frame0Key = GlobalKey();
 
   List<int> pointers = [];
-
+  Timer timer;
   @override
   Widget build(BuildContext context) {
     return _buildGestureDetector(
@@ -45,28 +51,40 @@ class _AnnotaterState extends State<Annotater> {
   Widget _buildGestureDetector(BuildContext context, Widget child) {
     return Listener(
       onPointerDown: (details) {
-        pointers.add(details.pointer);
-        if (pointers.length == 1) {
-          currentPointer = details.pointer;
-          setState(() {
-            _addPointsForCurrentFrame(details.position);
+        if (widget.active) {
+          timer = new Timer(Duration(milliseconds: 50), () {
+            if (pointers.length == 1) {
+              touchBegan = true;
+            }
           });
+          pointers.add(details.pointer);
+          if (pointers.length == 1) {
+            currentPointer = details.pointer;
+            setState(() {
+              _addPointsForCurrentFrame(details.position);
+            });
+          }
         }
       },
       onPointerMove: (details) {
-        if (pointers.length == 1) {
+        if (widget.active && pointers.length == 1 && touchBegan) {
           setState(() {
             _addPointsForCurrentFrame(details.position);
           });
         }
       },
       onPointerUp: (details) {
-        pointers.remove(details.pointer);
-        if (details.pointer == currentPointer) {
-          setState(() {
-            _getPointsForFrame(_currentFrame).add(null);
-          });
-          currentPointer = null;
+        if (widget.active) {
+          if (details.pointer == currentPointer) {
+            setState(() {
+              _getPointsForFrame(_currentFrame).add(null);
+            });
+            currentPointer = null;
+          }
+          pointers.remove(details.pointer);
+          timer.cancel();
+          timer = null;
+          touchBegan = false;
         }
       },
       child: child,
