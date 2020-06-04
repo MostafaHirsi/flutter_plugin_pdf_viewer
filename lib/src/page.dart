@@ -91,9 +91,11 @@ class _PDFPageState extends State<PDFPage> {
           width = imgInfo.image.width;
           widget.controller.aspectRatio = height / width;
           Size size = context.size;
-          widget.controller.height =
-              size.height / widget.controller.aspectRatio;
+          widget.controller.height = size.width * widget.controller.aspectRatio;
           widget.controller.width = size.width;
+          if (widget.controller.loaded != null) {
+            widget.controller.loaded();
+          }
           if (!alreadyPainted) setState(() {});
         },
       ),

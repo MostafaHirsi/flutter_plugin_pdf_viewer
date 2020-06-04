@@ -17,6 +17,7 @@ class PDFViewerController {
   double height;
   double width;
   double aspectRatio;
+  Function() loaded;
 
   Future<void> changePage(int index) async {
     await pdfViewer.changePage(index);
