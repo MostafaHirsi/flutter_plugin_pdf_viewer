@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
     setState(() => _isLoading = true);
     if (value == 1) {
       document = await PDFDocument.fromAsset(
-          'assets/sample 2.pdf', data, pdfViewerController);
+          'assets/sample.pdf', data, pdfViewerController);
     } else if (value == 2) {
       document = await PDFDocument.fromURL(
           "https://firebasestorage.googleapis.com/v0/b/yaktub-c0b33.appspot.com/o/5n4yyFfqhXTHXdWa3iPMsW2CA453%2FStatement%2021-FEB-20%20AC%2033656225.pdf?alt=media&token=766f4ef8-9f88-4e19-beca-5e2ebc227bfd",

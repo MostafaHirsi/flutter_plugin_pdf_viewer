@@ -16,6 +16,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.HandlerThread;
@@ -42,7 +43,7 @@ public class FlutterPluginPdfViewerPlugin implements MethodCallHandler {
 
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
-        synchronized(pluginLocker){
+        synchronized (pluginLocker) {
             if (backgroundHandler == null) {
                 handlerThread = new HandlerThread("flutterPdfViewer", Process.THREAD_PRIORITY_BACKGROUND);
                 handlerThread.start();
@@ -57,7 +58,7 @@ public class FlutterPluginPdfViewerPlugin implements MethodCallHandler {
                         switch (call.method) {
                             case "getNumberOfPages":
                                 final String numResult = getNumberOfPages((String) call.argument("filePath"));
-                                mainThreadHandler.post(new Runnable(){
+                                mainThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         result.success(numResult);
@@ -65,8 +66,8 @@ public class FlutterPluginPdfViewerPlugin implements MethodCallHandler {
                                 });
                                 break;
                             case "getPage":
-                                final String pageResult = getPage((String) call.argument("filePath"), (int) call.argument("pageNumber"));
-                                mainThreadHandler.post(new Runnable(){
+                                final String pageResult = getPage((String) call.argument("filePath"), (int) call.argument("pageNumber"), (int) call.argument("width"));
+                                mainThreadHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         result.success(pageResult);
@@ -114,7 +115,7 @@ public class FlutterPluginPdfViewerPlugin implements MethodCallHandler {
     }
 
 
-    private String getPage(String filePath, int pageNumber) {
+    private String getPage(String filePath, int pageNumber, int givenWidth) {
         File pdf = new File(filePath);
         try {
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(pdf, ParcelFileDescriptor.MODE_READ_ONLY));
@@ -125,11 +126,18 @@ public class FlutterPluginPdfViewerPlugin implements MethodCallHandler {
 
             PdfRenderer.Page page = renderer.openPage(--pageNumber);
 
-            double width = instance.activity().getResources().getDisplayMetrics().densityDpi * page.getWidth();
-            double height = instance.activity().getResources().getDisplayMetrics().densityDpi * page.getHeight();
+            double dpi = 300 / 72.0;
+
+//          double width = instance.activity().getResources().getDisplayMetrics().densityDpi * page.getWidth();
+//          double height = instance.activity().getResources().getDisplayMetrics().densityDpi * page.getHeight();
+
+
+            double width = dpi * page.getWidth();
+            double height = dpi * page.getHeight();
+            width = width
             final double docRatio = width / height;
 
-            width = 2048;
+//            width = givenWidth;
             height = (int) (width / docRatio);
             Bitmap bitmap = Bitmap.createBitmap((int) width, (int) height, Bitmap.Config.ARGB_8888);
             // Change background to white

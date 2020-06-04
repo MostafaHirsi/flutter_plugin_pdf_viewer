@@ -17,8 +17,9 @@ static NSString* kFileName = @"";
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if ([@"getPage" isEqualToString:call.method]) {
               size_t pageNumber = (size_t)[call.arguments[@"pageNumber"] intValue];
+              size_t given_width = (size_t)[call.arguments[@"width"] intValue];
               NSString * filePath = call.arguments[@"filePath"];
-              result([self getPage:filePath ofPage:pageNumber]);
+              result([self getPage:filePath ofPage:pageNumber given_width:given_width]);
           } else if ([@"getNumberOfPages" isEqualToString:call.method]) {
               NSString * filePath = call.arguments[@"filePath"];
               result([self getNumberOfPages:filePath]);
@@ -66,7 +67,7 @@ static NSString* kFileName = @"";
     return [NSString stringWithFormat:@"%zd", numberOfPages];
 }
 
--(NSString*)getPage:(NSString *)url ofPage:(size_t)pageNumber
+-(NSString*)getPage:(NSString *)url ofPage:(size_t)pageNumber given_width:(size_t)given_width
 {
     NSURL * sourcePDFUrl;
     if([url containsString:kFilePath]){
@@ -101,9 +102,16 @@ static NSString* kFileName = @"";
     UIGraphicsBeginPDFContextToFile(imageFilePath, sourceRect, nil);
     // Calculate resolution
     // Set DPI to 300
+    
+
     CGFloat dpi = 300.0 / 72.0;
-    CGFloat width = sourceRect.size.width * dpi;
-    CGFloat height = sourceRect.size.height * dpi;
+    CGFloat width = floor(sourceRect.size.width * dpi);
+    CGFloat height = floor(sourceRect.size.height * dpi);
+//
+//    CGFloat dpi = 300.0 / 72.0;
+//    CGFloat width = given_width;
+//    CGFloat aspect_ratio = sourceRect.size.height / sourceRect.size.width;
+//    CGFloat height = (sourceRect.size.height / aspect_ratio) * dpi;
     UIGraphicsBeginImageContext(CGSizeMake(width, height));
     // Fill Background
     CGContextRef currentContext = UIGraphicsGetCurrentContext();

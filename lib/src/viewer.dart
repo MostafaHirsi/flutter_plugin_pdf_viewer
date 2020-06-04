@@ -73,11 +73,16 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   _loadPage({PDFMode viewMode = PDFMode.View}) async {
     setState(() => _isLoading = true);
+    double width = MediaQuery.of(context).size.width;
+    double dpi = 300.0 / 72.0;
+    width = width * dpi;
     if (_oldPage == 0) {
-      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+      _page = await widget.document.get(viewMode, width.toInt(),
+          page: widget.pdfViewerController.currentPage);
     } else if (_oldPage != widget.pdfViewerController.currentPage) {
       _oldPage = widget.pdfViewerController.currentPage;
-      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+      _page = await widget.document.get(viewMode, width.toInt(),
+          page: widget.pdfViewerController.currentPage);
     }
     if (this.mounted) {
       setState(() => _isLoading = false);
@@ -85,11 +90,16 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   }
 
   _toggleView({PDFMode viewMode = PDFMode.View}) async {
+    double width = MediaQuery.of(context).size.width;
+    double dpi = MediaQuery.of(context).devicePixelRatio;
+    width = width * dpi;
     if (_oldPage == 0) {
-      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+      _page = await widget.document.get(viewMode, width.toInt(),
+          page: widget.pdfViewerController.currentPage);
     } else if (_oldPage != widget.pdfViewerController.currentPage) {
       _oldPage = widget.pdfViewerController.currentPage;
-      _page = await widget.document.get(viewMode, page: widget.pdfViewerController.currentPage);
+      _page = await widget.document.get(viewMode, width.toInt(),
+          page: widget.pdfViewerController.currentPage);
     }
     setState(() {});
   }
@@ -103,7 +113,8 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4.0),
                 color: widget.indicatorBackground),
-            child: Text("$widget.pdfViewerController.currentPage/${widget.document.count}",
+            child: Text(
+                "$widget.pdfViewerController.currentPage/${widget.document.count}",
                 style: TextStyle(
                     color: widget.indicatorText,
                     fontSize: 16.0,
@@ -210,8 +221,10 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               tooltip: widget.tooltip.next,
               onPressed: () {
                 widget.pdfViewerController.currentPage++;
-                if (widget.document.count < widget.pdfViewerController.currentPage) {
-                  widget.pdfViewerController.currentPage = widget.document.count;
+                if (widget.document.count <
+                    widget.pdfViewerController.currentPage) {
+                  widget.pdfViewerController.currentPage =
+                      widget.document.count;
                 }
                 _loadPage();
               },

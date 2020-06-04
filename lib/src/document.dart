@@ -100,10 +100,10 @@ class PDFDocument {
   /// Load specific page
   ///
   /// [page] defaults to `1` and must be equal or above it
-  Future<PDFPage> get(PDFMode mode, {int page = 1}) async {
+  Future<PDFPage> get(PDFMode mode, int width, {int page = 1}) async {
     assert(page > 0);
-    var data = await _channel
-        .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
+    var data = await _channel.invokeMethod(
+        'getPage', {'filePath': _filePath, 'width': width, 'pageNumber': page});
     List<Offset> drawingData = controller.pageOffset[page];
     return new PDFPage(data, page, mode, drawingData, controller);
   }
@@ -111,11 +111,12 @@ class PDFDocument {
   // Stream all pages
   Observable<PDFPage> getAll(
     PDFMode mode,
+    int width,
   ) {
     return Future.forEach<PDFPage>(List(count), (i) async {
       print(i);
-      final data = await _channel
-          .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
+      final data = await _channel.invokeMethod(
+          'getPage', {'filePath': _filePath, 'width': width, 'pageNumber': i});
       List<Offset> drawingData = controller.pageOffset[i.num];
       return new PDFPage(data, 1, mode, drawingData, controller);
     }).asStream();

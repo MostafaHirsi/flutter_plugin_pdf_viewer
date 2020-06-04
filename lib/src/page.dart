@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -37,7 +38,6 @@ class _PDFPageState extends State<PDFPage> {
       setState(() {});
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => postBuild(context));
-
   }
 
   postBuild(BuildContext context) {
@@ -79,12 +79,25 @@ class _PDFPageState extends State<PDFPage> {
 
   _repaint() {
     provider = FileImage(File(widget.imgPath));
-    final resolver = provider.resolve(createLocalImageConfiguration(context));
-    resolver.addListener(ImageStreamListener((imgInfo, alreadyPainted) {
-      height = imgInfo.image.height;
-      width = imgInfo.image.width;
-      if (!alreadyPainted) setState(() {});
-    }));
+    double longWidth = MediaQuery.of(context).size.width;
+    final resolver = provider.resolve(
+      createLocalImageConfiguration(context,
+          size: new Size.fromWidth(longWidth)),
+    );
+    resolver.addListener(
+      ImageStreamListener(
+        (imgInfo, alreadyPainted) async {
+          height = imgInfo.image.height;
+          width = imgInfo.image.width;
+          widget.controller.aspectRatio = height / width;
+          Size size = context.size;
+          widget.controller.height =
+              size.height / widget.controller.aspectRatio;
+          widget.controller.width = size.width;
+          if (!alreadyPainted) setState(() {});
+        },
+      ),
+    );
   }
 
   @override

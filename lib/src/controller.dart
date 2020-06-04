@@ -16,6 +16,7 @@ class PDFViewerController {
   Offset zoomOffset;
   double height;
   double width;
+  double aspectRatio;
 
   Future<void> changePage(int index) async {
     await pdfViewer.changePage(index);
