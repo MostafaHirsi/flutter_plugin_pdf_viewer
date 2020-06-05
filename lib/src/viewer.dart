@@ -66,13 +66,13 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
     super.didUpdateWidget(oldWidget);
     _oldPage = 0;
     widget.pdfViewerController.currentPage = 1;
-    _isLoading = true;
+    // _isLoading = true;
     _pages.clear();
     _loadPage();
   }
 
   _loadPage({PDFMode viewMode = PDFMode.View}) async {
-    setState(() => _isLoading = true);
+    // setState(() => _isLoading = true);
     double width = MediaQuery.of(context).size.width;
     double dpi = 300.0 / 72.0;
     width = width * dpi;
