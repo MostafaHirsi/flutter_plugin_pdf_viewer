@@ -51,6 +51,7 @@ class _AnnotaterState extends State<Annotater> {
   Widget _buildGestureDetector(BuildContext context, Widget child) {
     return Listener(
       onPointerDown: (details) {
+        if (!mounted) return;
         if (widget.active) {
           timer = new Timer(Duration(milliseconds: 50), () {
             if (pointers.length == 1) {
@@ -67,6 +68,7 @@ class _AnnotaterState extends State<Annotater> {
         }
       },
       onPointerMove: (details) {
+        if (!mounted) return;
         if (widget.active && pointers.length == 1 && touchBegan) {
           setState(() {
             _addPointsForCurrentFrame(details.position);
@@ -74,6 +76,7 @@ class _AnnotaterState extends State<Annotater> {
         }
       },
       onPointerUp: (details) {
+        if (!mounted) return;
         if (widget.active) {
           if (details.pointer == currentPointer) {
             setState(() {
