@@ -66,13 +66,14 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
     super.didUpdateWidget(oldWidget);
     _oldPage = 0;
     widget.pdfViewerController.currentPage = 1;
-    // _isLoading = true;
     _pages.clear();
     _loadPage();
   }
 
-  _loadPage({PDFMode viewMode = PDFMode.View}) async {
-    // setState(() => _isLoading = true);
+  _loadPage({PDFMode viewMode = PDFMode.View, shouldRefresh = false}) async {
+    if (shouldRefresh) {
+      setState(() => _isLoading = true);
+    }
     double width = MediaQuery.of(context).size.width;
     double dpi = 300.0 / 72.0;
     width = width * dpi;
@@ -192,16 +193,18 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
+            flex: 2,
             child: IconButton(
               icon: Icon(Icons.first_page),
               tooltip: widget.tooltip.first,
               onPressed: () {
                 widget.pdfViewerController.currentPage = 1;
-                _loadPage();
+                _loadPage(shouldRefresh: true);
               },
             ),
           ),
           Expanded(
+            flex: 2,
             child: IconButton(
               icon: Icon(Icons.chevron_left),
               tooltip: widget.tooltip.previous,
@@ -210,11 +213,15 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
                 if (1 > widget.pdfViewerController.currentPage) {
                   widget.pdfViewerController.currentPage = 1;
                 }
-                _loadPage();
+                _loadPage(shouldRefresh: true);
               },
             ),
           ),
-          widget.showPicker ? Expanded(child: Text('')) : SizedBox(width: 1),
+          widget.showPicker
+              ? Spacer(
+                  flex: 2,
+                )
+              : SizedBox(width: 1),
           Expanded(
             child: IconButton(
               icon: Icon(Icons.chevron_right),
@@ -226,17 +233,17 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
                   widget.pdfViewerController.currentPage =
                       widget.document.count;
                 }
-                _loadPage();
+                _loadPage(shouldRefresh: true);
               },
             ),
           ),
           Expanded(
+            flex: 2,
             child: IconButton(
               icon: Icon(Icons.last_page),
               tooltip: widget.tooltip.last,
               onPressed: () {
                 widget.pdfViewerController.currentPage = widget.document.count;
-                _loadPage();
               },
             ),
           ),
@@ -249,7 +256,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
   Future<void> changePage(int index) {
     if (index != null) {
       widget.pdfViewerController.currentPage = index;
-      _loadPage();
+      _loadPage(shouldRefresh: true);
     }
   }
 
