@@ -97,6 +97,7 @@ class _MyAppState extends State<MyApp> {
             pdfViewerController.setMode();
           },
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
   }

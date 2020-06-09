@@ -217,12 +217,11 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               },
             ),
           ),
-          widget.showPicker
-              ? Spacer(
-                  flex: 2,
-                )
-              : SizedBox(width: 1),
+          Spacer(
+            flex: 2,
+          ),
           Expanded(
+            flex: 2,
             child: IconButton(
               icon: Icon(Icons.chevron_right),
               tooltip: widget.tooltip.next,
@@ -251,7 +250,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
       ),
     );
   }
-
+   
   @override
   Future<void> changePage(int index) {
     if (index != null) {
