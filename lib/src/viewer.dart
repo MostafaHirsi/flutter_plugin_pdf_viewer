@@ -135,17 +135,111 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        _isLoading
-            ? Center(
-                child: Platform.isIOS
-                    ? CupertinoActivityIndicator()
-                    : CircularProgressIndicator(),
-              )
-            : _page,
-        (widget.showIndicator && !_isLoading) ? _drawIndicator() : Container(),
-      ],
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: widget.showPicker
+          ? FloatingActionButton(
+              elevation: 4.0,
+              tooltip: widget.tooltip.jump,
+              child: Icon(Icons.view_carousel),
+              onPressed: () {
+                _pickPage();
+              },
+            )
+          : null,
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Flexible(
+            flex: widget.showNavigation ? 90 : 100,
+            child: Stack(
+              children: <Widget>[
+                _isLoading
+                    ? Center(
+                        child: Platform.isIOS
+                            ? CupertinoActivityIndicator()
+                            : CircularProgressIndicator(),
+                      )
+                    : _page,
+                (widget.showIndicator && !_isLoading)
+                    ? _drawIndicator()
+                    : Container(),
+              ],
+            ),
+          ),
+          if (widget.showNavigation)
+            Flexible(
+              flex: 10,
+              child: buildBottomBar(),
+            )
+        ],
+      ),
+    );
+  }
+
+  Widget buildBottomBar() {
+    return Container(
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: IconButton(
+              icon: Icon(Icons.first_page),
+              tooltip: widget.tooltip.first,
+              onPressed: () {
+                widget.pdfViewerController.currentPage = 1;
+                _loadPage();
+              },
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: IconButton(
+              icon: Icon(Icons.chevron_left),
+              tooltip: widget.tooltip.previous,
+              onPressed: () {
+                widget.pdfViewerController.currentPage--;
+                if (1 > widget.pdfViewerController.currentPage) {
+                  widget.pdfViewerController.currentPage = 1;
+                }
+                _loadPage();
+              },
+            ),
+          ),
+          Spacer(
+            flex: 2,
+          ),
+          Expanded(
+            flex: 2,
+            child: IconButton(
+              icon: Icon(Icons.chevron_right),
+              tooltip: widget.tooltip.next,
+              onPressed: () {
+                widget.pdfViewerController.currentPage++;
+                if (widget.document.count <
+                    widget.pdfViewerController.currentPage) {
+                  widget.pdfViewerController.currentPage =
+                      widget.document.count;
+                }
+                _loadPage();
+              },
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: IconButton(
+              icon: Icon(Icons.last_page),
+              tooltip: widget.tooltip.last,
+              onPressed: () {
+                widget.pdfViewerController.currentPage = widget.document.count;
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
