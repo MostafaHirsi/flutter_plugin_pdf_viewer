@@ -80,11 +80,11 @@ class _MyAppState extends State<MyApp> {
                   showPicker: true,
                 ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await pdfViewerController.changePage(2);
-          },
-        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () async {
+        //     await pdfViewerController.changePage(2);
+        //   },
+        // ),
       ),
     );
   }

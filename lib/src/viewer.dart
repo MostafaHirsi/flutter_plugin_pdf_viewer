@@ -191,6 +191,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               tooltip: widget.tooltip.first,
               onPressed: () {
                 widget.pdfViewerController.currentPage = 1;
+                _pageNumber = widget.pdfViewerController.currentPage;
                 _loadPage();
               },
             ),
@@ -205,6 +206,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
                 if (1 > widget.pdfViewerController.currentPage) {
                   widget.pdfViewerController.currentPage = 1;
                 }
+                _pageNumber = widget.pdfViewerController.currentPage;
                 _loadPage();
               },
             ),
@@ -224,6 +226,7 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
                   widget.pdfViewerController.currentPage =
                       widget.document.count;
                 }
+                _pageNumber = widget.pdfViewerController.currentPage;
                 _loadPage();
               },
             ),
@@ -235,6 +238,8 @@ class _PDFViewerState extends State<PDFViewer> implements PdfViewerInterface {
               tooltip: widget.tooltip.last,
               onPressed: () {
                 widget.pdfViewerController.currentPage = widget.document.count;
+                _pageNumber = widget.pdfViewerController.currentPage;
+                _loadPage();
               },
             ),
           ),
