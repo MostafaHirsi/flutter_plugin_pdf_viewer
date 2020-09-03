@@ -16,6 +16,10 @@ dependencies:
   numberpicker: ^1.0.0
   flutter_advanced_networkimage: ^0.8.0
 
+  flutter_advanced_networkimage: 
+    git:
+      url: git://github.com/mchome/flutter_advanced_networkimage.git
+      
 flutter:
   plugin:
     androidPackage: pt.tribeiro.flutter_plugin_pdf_viewer
