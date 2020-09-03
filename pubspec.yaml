@@ -14,8 +14,6 @@ dependencies:
   path_provider: ^1.1.0
   rxdart: ^0.22.0
   numberpicker: ^1.0.0
-  flutter_advanced_networkimage: ^0.8.0
-
   flutter_advanced_networkimage: 
     git:
       url: git://github.com/mchome/flutter_advanced_networkimage.git
